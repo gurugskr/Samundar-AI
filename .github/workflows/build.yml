@@ -5,11 +5,9 @@ jobs:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v3
-
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
-
       - name: Install JAVA and Deps
         run: |
           sudo apt update
@@ -17,12 +15,10 @@ jobs:
           sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
           pip install --upgrade pip
           pip install buildozer cython==0.29.36
-
       - name: Install Android SDK
         run: |
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
-          java -version
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
           mkdir -p $HOME/android_sdk/cmdline-tools
@@ -35,8 +31,7 @@ jobs:
           export ANDROID_SDK_ROOT=$HOME/android_sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
           yes | sdkmanager --licenses || true
-          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25b"
-
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
       - name: Build APK
         env:
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
@@ -45,7 +40,6 @@ jobs:
         run: |
           export PATH=$JAVA_HOME/bin:$HOME/.local/bin:$PATH
           buildozer android debug
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
