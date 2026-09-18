@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       - uses: actions/checkout@v4
@@ -16,19 +16,33 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Buildozer
+      - name: Install Buildozer & Cython
         run: |
           pip install --upgrade pip
           pip install buildozer cython==0.29.36
 
-      - name: Accept SDK Licenses and Install Stable Tools
+      - name: Fix Build-Tools 37 Bug
         run: |
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "platforms;android-33"
+          # System SDK me dono version install karo
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "build-tools;34.0.0" "platforms;android-33" || true
+          
+          # Buildozer ke andar build-tools folder banao
+          mkdir -p ~/.buildozer/android/platform/android-sdk/build-tools/
+          
+          # 33.0.2 ko Buildozer ke andar copy karo
+          cp -r $ANDROID_HOME/build-tools/33.0.2 ~/.buildozer/android/platform/android-sdk/build-tools/ || true
+          
+          # IMPORTANT HACK: 37.0.0 ko bhi 33.0.2 se bana do (kyunki 37 me aidl nahi hai)
+          rm -rf ~/.buildozer/android/platform/android-sdk/build-tools/37.0.0
+          cp -r $ANDROID_HOME/build-tools/33.0.2 ~/.buildozer/android/platform/android-sdk/build-tools/37.0.0
+          
+          # List check
+          ls ~/.buildozer/android/platform/android-sdk/build-tools/
 
       - name: Build APK
         run: |
-          rm -rf .buildozer bin
+          rm -rf bin
           buildozer -v android debug
 
       - name: Upload APK
