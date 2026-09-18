@@ -24,7 +24,7 @@ jobs:
           rm -rf .buildozer bin
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
-          yes | buildozer -v android debug || echo "License accepted, retrying build..."
+          yes | buildozer -v android debug || echo "License accepted, retrying..."
           buildozer -v android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
