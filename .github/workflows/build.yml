@@ -8,16 +8,24 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-      - name: Install Buildozer
+      - name: Install Buildozer Fixed
         run: |
           sudo apt update
-          sudo apt install -y openjdk-17-jdk zip unzip
-          pip install buildozer==1.5.0 cython==0.29.36
+          sudo apt install -y openjdk-17-jdk zip unzip libffi-dev libssl-dev
+          pip install --upgrade pip
+          pip install Cython==3.0.11
+          pip install --no-deps buildozer==1.5.0
+          pip install pythonforandroid kivy==2.2.0
+          pip install legacy-cgi
+          SITE=$(python -c "import site; print(site.getsitepackages()[0])")
+          echo "import sys; import legacy_cgi as cgi; sys.modules['cgi']=cgi" > $SITE/sitecustomize.py
+          echo "Fix applied"
       - name: Build APK
         run: |
-          yes | buildozer android debug
+          rm -rf.buildozer bin
+          yes | buildozer -v android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Samundar-AI-APK
+          name: Samundar-APK
           path: bin/*.apk
