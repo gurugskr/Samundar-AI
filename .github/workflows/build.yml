@@ -1,4 +1,4 @@
-name: Build APK
+name: build
 on: [push]
 jobs:
   build:
@@ -9,24 +9,29 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install dependencies
+      - name: Install System Deps
         run: |
           sudo apt update
           sudo apt install -y libtinfo5 libncurses5-dev openjdk-17-jdk zip unzip
           python3 -m pip install --upgrade pip==23.3.1
           pip install cython==0.29.36 buildozer==1.5.0
 
-      - name: Build
+      - name: Accept Android Licenses
+        run: |
+          mkdir -p $HOME/.android
+          touch $HOME/.android/repositories.cfg
+          yes | sdkmanager --licenses || true
+          sdkmanager "build-tools;34.0.0" "platform-tools" || true
+
+      - name: Build APK
         run: |
           rm -rf .buildozer bin
-          # pehle p4a download hone do
           buildozer android update || true
-          # uske andar jo -U pip likha hai usko roko
           find.buildozer -type f -name "*.py" -exec sed -i 's/pip install -U pip/pip install pip==23.3.1/g' {} \; || true
           find.buildozer -type f -name "*.py" -exec sed -i 's/pip install --upgrade pip/pip install pip==23.3.1/g' {} \; || true
           buildozer android debug
 
       - uses: actions/upload-artifact@v4
         with:
-          name: samundar-ai-apk
+          name: Samundar-APK
           path: bin/*.apk
