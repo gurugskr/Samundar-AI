@@ -13,20 +13,22 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y libtinfo5 libncurses5-dev openjdk-17-jdk zip unzip
-          python3 -m pip install --upgrade pip==23.3.1
+          pip install --upgrade pip==23.3.1
           pip install cython==0.29.36 buildozer==1.5.0
-
-      - name: Accept ALL Licenses
-        run: |
-          mkdir -p $HOME/.android
-          touch $HOME/.android/repositories.cfg
-          yes | sdkmanager --licenses || true
-          sdkmanager --install "build-tools;37.0.0" "build-tools;34.0.0" "platforms;android-33" "platform-tools" || true
-          yes | sdkmanager --licenses || true
 
       - name: Build APK
         run: |
           rm -rf .buildozer bin
+          mkdir -p $HOME/.android
+          touch $HOME/.android/repositories.cfg
+          # pehle buildozer ko SDK download karne do
+          buildozer android update || true
+          # ab uske andar license zabardasti daalo
+          mkdir -p.buildozer/android/platform/android-sdk/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" >.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >>.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo "24333f8a63b6825ea9c5514f83c1059b8ea6b09e" >>.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          # ab final build
           buildozer android debug
 
       - uses: actions/upload-artifact@v4
