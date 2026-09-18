@@ -14,11 +14,15 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y openjdk-17-jdk zip unzip git python3-pip libffi-dev libssl-dev
+          sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
           pip install --upgrade pip
           pip install buildozer cython==0.29.36
 
       - name: Install Android SDK
         run: |
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$PATH
+          java -version
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
           mkdir -p $HOME/android_sdk/cmdline-tools
@@ -30,14 +34,16 @@ jobs:
           export ANDROID_HOME=$HOME/android_sdk
           export ANDROID_SDK_ROOT=$HOME/android_sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
-          yes | sdkmanager --licenses
+          yes | sdkmanager --licenses || true
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2" "ndk;25b"
 
       - name: Build APK
         env:
+          JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
           ANDROID_HOME: /home/runner/android_sdk
           ANDROID_SDK_ROOT: /home/runner/android_sdk
         run: |
+          export PATH=$JAVA_HOME/bin:$HOME/.local/bin:$PATH
           buildozer android debug
 
       - name: Upload APK
