@@ -1,4 +1,4 @@
-name: Samundar-AI-Build
+name: build
 on: [push]
 jobs:
   build:
@@ -11,15 +11,15 @@ jobs:
       - name: Install Buildozer Fixed
         run: |
           sudo apt update
-          sudo apt install -y openjdk-17-jdk zip unzip libffi-dev libssl-dev
+          sudo apt install -y openjdk-17-jdk zip unzip libffi-dev libssl-dev libsqlite3-dev
           pip install --upgrade pip
           pip install Cython==3.0.11
-          pip install --no-deps buildozer==1.5.0
-          pip install pythonforandroid kivy==2.2.0
+          pip install buildozer==1.5.0
+          pip install kivy==2.2.0
           pip install legacy-cgi
           SITE=$(python -c "import site; print(site.getsitepackages()[0])")
           echo "import sys; import legacy_cgi as cgi; sys.modules['cgi']=cgi" > $SITE/sitecustomize.py
-          echo "Fix applied"
+          echo "Fix OK"
       - name: Build APK
         run: |
           rm -rf.buildozer bin
