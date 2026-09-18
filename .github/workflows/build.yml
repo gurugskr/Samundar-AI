@@ -8,26 +8,36 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.10'
+
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y openjdk-17-jdk python3-pip zip unzip libssl-dev libffi-dev autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libltdl-dev
+          sudo apt install -y openjdk-17-jdk python3-pip zip unzip libssl-dev libffi-dev autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libltdl-dev wget
           pip install --upgrade pip
           pip install buildozer cython==0.29.33
+
       - name: Build APK
         run: |
-          rm -rf .buildozer bin
+          rm -rf .buildozer
+          rm -rf bin
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
-          buildozer android debug || true
-          export SDK=~/.buildozer/android/platform/android-sdk
-          mkdir -p $SDK/licenses
-          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $SDK/licenses/android-sdk-license
-          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $SDK/licenses/android-sdk-license
-          echo "24333f8a63b6825ea1c5514f83c1059f721e5cd8a" >> $SDK/licenses/android-sdk-license
-          yes | $SDK/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          yes | $SDK/tools/bin/sdkmanager --licenses || true
+          # Pehle se hi SDK aur license accept kar lo
+          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
+          cd ~/.buildozer/android/platform/android-sdk/cmdline-tools
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q commandlinetools-linux-11076708_latest.zip
+          mkdir -p latest
+          mv cmdline-tools/* latest/ || true
+          mkdir -p../licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" >../licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >>../licenses/android-sdk-license
+          echo "24333f8a63b6825ea1c5514f83c1059f721e5cd8a" >>../licenses/android-sdk-license
+          yes |./latest/bin/sdkmanager --licenses
+          yes |./latest/bin/sdkmanager "build-tools;33.0.2" "platform-tools" "platforms;android-33"
+          cd -
           buildozer android debug
+
       - uses: actions/upload-artifact@v4
         with:
           name: Samundar-AI-APK
