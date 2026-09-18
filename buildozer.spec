@@ -3,7 +3,6 @@ title = Samundar AI
 package.name = samundarai
 package.domain = com.gurugskr.samundarai
 source.dir =.
-source.include_exts = py,png,jpg,kv,json
 version = 0.1
 requirements = python3,kivy==2.2.0
 orientation = portrait
@@ -19,4 +18,6 @@ android.ndk = 25b
 android.build_tools_version = 33.0.2
 android.accept_sdk_license_agreement = True
 android.permissions = INTERNET
+p4a.fork = kivy
+p4a.branch = master
 p4a.bootstrap = sdl2
