@@ -26,3 +26,7 @@ warn_on_root = 1
 p4a.branch = master
 p4a.bootstrap = sdl2
 android.archs = arm64-v8a
+android.build_tools_version = 34.0.0
+android.api = 33
+requirements = python3,kivy==2.3.0
+p4a.branch = master
