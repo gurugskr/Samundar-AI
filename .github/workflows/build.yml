@@ -1,34 +1,34 @@
 name: build
 on: [push]
+
 jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
-      - name: Install System Deps
+      - name: Install Deps
         run: |
           sudo apt update
           sudo apt install -y libtinfo5 libncurses5-dev openjdk-17-jdk zip unzip
-          python3 -m pip install --upgrade pip==23.3.1
+          pip install --upgrade pip==23.3.1
           pip install cython==0.29.36 buildozer==1.5.0
 
-      - name: Accept Android Licenses
+      - name: Accept Licenses
         run: |
           mkdir -p $HOME/.android
           touch $HOME/.android/repositories.cfg
+          echo "y" | sdkmanager --licenses || true
           yes | sdkmanager --licenses || true
-          sdkmanager "build-tools;34.0.0" "platform-tools" || true
+          sdkmanager --install "build-tools;34.0.0" "platform-tools" "platforms;android-33" || true
 
       - name: Build APK
         run: |
           rm -rf .buildozer bin
-          buildozer android update || true
-          find.buildozer -type f -name "*.py" -exec sed -i 's/pip install -U pip/pip install pip==23.3.1/g' {} \; || true
-          find.buildozer -type f -name "*.py" -exec sed -i 's/pip install --upgrade pip/pip install pip==23.3.1/g' {} \; || true
           buildozer android debug
 
       - uses: actions/upload-artifact@v4
