@@ -19,6 +19,12 @@ jobs:
         run: |
           rm -rf .buildozer
           rm -rf bin
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          buildozer android debug || true
+          SDKMANAGER=$(find $HOME/.buildozer -name sdkmanager | head -n 1)
+          echo "SDKMANAGER path: $SDKMANAGER"
+          yes | $SDKMANAGER --licenses || true
           buildozer android debug
 
       - uses: actions/upload-artifact@v4
