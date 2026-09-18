@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
 
     steps:
       - uses: actions/checkout@v4
@@ -36,9 +36,6 @@ jobs:
           # IMPORTANT HACK: 37.0.0 ko bhi 33.0.2 se bana do (kyunki 37 me aidl nahi hai)
           rm -rf ~/.buildozer/android/platform/android-sdk/build-tools/37.0.0
           cp -r $ANDROID_HOME/build-tools/33.0.2 ~/.buildozer/android/platform/android-sdk/build-tools/37.0.0
-          
-          # List check
-          ls ~/.buildozer/android/platform/android-sdk/build-tools/
 
       - name: Build APK
         run: |
