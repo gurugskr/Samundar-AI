@@ -2,20 +2,23 @@ name: Build APK
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Install dependencies
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Install Buildozer
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip openjdk-8-jdk zip unzip
-          pip3 install --upgrade pip
-          pip3 install buildozer cython==0.29.33
-      - name: Build APK
-        run: |
-          buildozer android debug
+          pip install buildozer cython
+          sudo apt-get update
+          sudo apt-get install -y python3-pip
+      - name: Build
+        run: buildozer android debug
       - name: Upload APK
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: Samundar-AI-APK
           path: bin/*.apk
