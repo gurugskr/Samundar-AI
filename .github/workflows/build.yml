@@ -22,9 +22,14 @@ jobs:
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
           buildozer android debug || true
+          SDK="$HOME/.buildozer/android/platform/android-sdk"
+          mkdir -p $SDK/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $SDK/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $SDK/licenses/android-sdk-license
+          echo "24333f8a63b6825ea1c5514f83c1059f721e5cd8a" >> $SDK/licenses/android-sdk-license
           SDKMANAGER=$(find $HOME/.buildozer -name sdkmanager | head -n 1)
-          echo "SDKMANAGER path: $SDKMANAGER"
           yes | $SDKMANAGER --licenses || true
+          $SDKMANAGER "build-tools;37.0.0" || true
           buildozer android debug
 
       - uses: actions/upload-artifact@v4
