@@ -1,0 +1,19 @@
+name: Build APK
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+      - run: |
+          sudo apt update
+          sudo apt install -y openjdk-17-jdk zip unzip
+          pip install buildozer cython
+          buildozer android debug
+      - uses: actions/upload-artifact@v3
+        with:
+          name: apk
+          path: bin/*.apk
