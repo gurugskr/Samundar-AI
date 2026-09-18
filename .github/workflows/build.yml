@@ -12,7 +12,7 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y openjdk-17-jdk zip unzip libssl-dev libffi-dev autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libltdl-dev
+          sudo apt install -y openjdk-17-jdk zip unzip libssl-dev libffi-dev autoconf automake libtool pkg-config cmake
           pip install buildozer cython==0.29.33
 
       - name: Build APK
@@ -20,7 +20,12 @@ jobs:
           rm -rf .buildozer
           rm -rf bin
           mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
+          echo "### User Sources for Android SDK Manager" > ~/.android/repositories.cfg
+          buildozer android debug || true
+          SDK="$HOME/.buildozer/android/platform/android-sdk"
+          mkdir -p $SDK/licenses
+          printf "8933bad161af4178b1185d1a37fbf41ea5269c55\nd56f5187479451eabf01fb78af6dfcb131a6481e\n24333f8a63b6825ea1c5514f83c1059f721e5cd8a\n" > $SDK/licenses/android-sdk-license
+          yes | $SDK/cmdline-tools/latest/bin/sdkmanager --licenses
           buildozer android debug
 
       - uses: actions/upload-artifact@v4
