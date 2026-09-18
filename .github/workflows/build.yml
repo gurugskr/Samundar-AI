@@ -15,12 +15,14 @@ jobs:
           sudo update-alternatives --set java /usr/lib/jvm/java-17-openjdk-amd64/bin/java
           pip install --upgrade pip
           pip install buildozer cython==0.29.36
+
       - name: Install Android SDK
         run: |
           export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
           export PATH=$JAVA_HOME/bin:$PATH
           mkdir -p ~/.android && touch ~/.android/repositories.cfg
-          mkdir -p $HOME/android_sdk/cmdline-tools && mkdir -p /tmp/cmd
+          mkdir -p $HOME/android_sdk/cmdline-tools
+          mkdir -p /tmp/cmd
           wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O cmd.zip
           unzip -q cmd.zip -d /tmp/cmd
           mkdir -p $HOME/android_sdk/cmdline-tools/latest
@@ -29,23 +31,33 @@ jobs:
           export ANDROID_SDK_ROOT=$HOME/android_sdk
           export PATH=$PATH:$ANDROID_HOME/cmdline-tools/latest/bin
           mkdir -p $ANDROID_HOME/licenses
-          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
           echo "24333f8a63b6825ea9c5514f83c1059b8ea4b9ac" >> $ANDROID_HOME/licenses/android-sdk-license
-          cp $ANDROID_HOME/licenses/android-sdk-license ~/.buildozer/android/platform/android-sdk/licenses/ || true
           yes | sdkmanager --licenses || true
           sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
       - name: Build APK
         env:
           JAVA_HOME: /usr/lib/jvm/java-17-openjdk-amd64
           ANDROID_HOME: /home/runner/android_sdk
           ANDROID_SDK_ROOT: /home/runner/android_sdk
         run: |
-          export PATH=$JAVA_HOME/bin:$HOME/.local/bin:$PATH
-          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-          cp $HOME/android_sdk/licenses/android-sdk-license ~/.buildozer/android/platform/android-sdk/licenses/ || true
+          export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
+          export PATH=$JAVA_HOME/bin:$HOME/android_sdk/cmdline-tools/latest/bin:$HOME/.local/bin:$PATH
+          # Fix for Buildozer old sdkmanager path
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+          cp $HOME/android_sdk/cmdline-tools/latest/bin/sdkmanager $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager || true
+          cp -r $HOME/android_sdk/cmdline-tools $HOME/.buildozer/android/platform/android-sdk/ || true
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/licenses
+          cp $HOME/android_sdk/licenses/android-sdk-license $HOME/.buildozer/android/platform/android-sdk/licenses/ || true
+          cp $HOME/android_sdk/licenses/android-sdk-license $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/../licenses/ 2>/dev/null || true
+          mkdir -p $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/licenses
+          cp $HOME/android_sdk/licenses/android-sdk-license $HOME/.buildozer/android/platform/android-sdk/cmdline-tools/latest/licenses/ || true
+          yes | sdkmanager --sdk_root=$HOME/.buildozer/android/platform/android-sdk --licenses || true
           buildozer android debug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
