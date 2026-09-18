@@ -18,7 +18,7 @@ jobs:
 
       - name: Build APK
         run: |
-          rm -rf .buildozer bin
+          rm -rf.buildozer bin
           mkdir -p $HOME/.android
           touch $HOME/.android/repositories.cfg
           mkdir -p.buildozer/android/platform/android-sdk/licenses
