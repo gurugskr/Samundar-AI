@@ -1,8 +1,7 @@
 name: build
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 jobs:
   build:
     runs-on: ubuntu-22.04
@@ -15,7 +14,6 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-
       - name: Install Buildozer Master
         run: |
           sudo apt-get update
@@ -24,23 +22,19 @@ jobs:
           pip install cython==0.29.36
           pip install https://github.com/kivy/buildozer/archive/master.zip
           pip install https://github.com/kivy/python-for-android/archive/master.zip
-
-      - name: Fix SDK Path and Licenses
+      - name: Fix SDK
         run: |
           mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
           mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
           cp -r $ANDROID_HOME/cmdline-tools/latest/* ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/ || true
           ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
           mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
           cp $ANDROID_HOME/licenses/* ~/.buildozer/android/platform/android-sdk/licenses/ || true
-
-      - name: Build APK
+      - name: Build
         run: |
           rm -rf bin
           buildozer -v android debug
-
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
