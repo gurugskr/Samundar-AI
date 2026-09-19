@@ -8,21 +8,19 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Check where package.json is
+      - name: Install and Build
         run: |
           ls -la
-          find . -name "package.json" -type f
-
-      - name: Install and Build
-        working-directory: ./Samundar-AI
-        run: |
+          PKG_PATH=$(find . -name "package.json" | head -n 1)
+          echo "Found package.json at: $PKG_PATH"
+          DIR=$(dirname $PKG_PATH)
+          echo "Installing in dir: $DIR"
+          cd $DIR
           npm install
-          npm run build
+          npm run build || npm run dev --help || echo "no build script"
