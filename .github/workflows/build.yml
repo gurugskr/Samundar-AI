@@ -8,9 +8,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.10'
 
@@ -20,4 +20,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install kivy
           python -m py_compile main.py
+          mkdir -p dist
+          cp main.py dist/
           echo "Build Success - main.py is OK"
+          ls -la dist/
+
+      - name: Upload Samundar
+        uses: actions/upload-artifact@v4
+        with:
+          name: Samundar-Build
+          path: dist/
