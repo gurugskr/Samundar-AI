@@ -19,7 +19,7 @@ jobs:
           pip install buildozer cython
       - name: Build APK
         run: |
-          rm -rf.buildozer bin || true
+          rm -rf .buildozer bin || true
           mkdir -p ~/.android
           touch ~/.android/repositories.cfg
           # पहली बार SDK download होगा, fail हो सकता है - ठीक है
