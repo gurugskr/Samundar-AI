@@ -1,22 +1,26 @@
-[app]
-title = Samundar AI
-package.name = samundarai
-package.domain = com.gurugskr.samundarai
-source.dir =.
-source.include_exts = py,png,jpg,kv,json
-version = 0.1
-requirements = python3,kivy==2.2.0
-orientation = portrait
-
-[buildozer]
-log_level = 2
-
-[app:android]
-android.api = 33
-android.minapi = 21
-android.sdk = 33
-android.ndk = 25b
-android.build_tools_version = 33.0.2
-android.accept_sdk_license_agreement = True
-android.permissions = INTERNET
-p4a.bootstrap = sdl2
+name: build
+on:
+  push:
+    branches: [ main ]
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y zip unzip openjdk-17-jdk libffi-dev libssl-dev
+          pip install --upgrade pip
+          pip install cython==0.29.36 buildozer
+      - name: Build APK
+        run: |
+          rm -rf .buildozer bin
+          buildozer -v android debug
