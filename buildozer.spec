@@ -5,7 +5,7 @@ package.domain = com.gurugskr.samundarai
 source.dir =.
 source.include_exts = py,png,jpg,kv,json
 version = 0.1
-requirements = python3,kivy==2.2.0
+requirements = python3,kivy==2.3.1
 orientation = portrait
 
 [buildozer]
