@@ -17,25 +17,28 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Install Dependencies
+      - name: Install Buildozer Master
         run: |
           sudo apt-get update
-          sudo apt-get install -y zip unzip libffi-dev libssl-dev
+          sudo apt-get install -y zip unzip libffi-dev libssl-dev libltdl-dev
           pip install --upgrade pip
-          pip install cython==0.29.36 buildozer
+          pip install cython==0.29.36
+          pip install https://github.com/kivy/buildozer/archive/master.zip
+          pip install https://github.com/kivy/python-for-android/archive/master.zip
 
-      - name: Force Accept Android Licenses and Install Build-Tools
+      - name: Fix sdkmanager path (yehi main fix hai)
         run: |
-          export SDKMANAGER=$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager
-          yes | $SDKMANAGER --licenses || true
-          $SDKMANAGER --install "build-tools;37.0.0" "build-tools;33.0.2" "platforms;android-33" "platform-tools"
-          # extra license copy for buildozer's own sdk
-          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
-          cp $ANDROID_HOME/licenses/* ~/.buildozer/android/platform/android-sdk/licenses/ || true
+          mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
+          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
+          # GitHub ka sdkmanager ko buildozer wale folder me copy karo
+          cp -r $ANDROID_HOME/cmdline-tools/latest/* ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/ || true
+          ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+          ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
       - name: Build APK
         run: |
-          rm -rf .buildozer bin
+          rm -rf bin
           buildozer -v android debug
 
       - name: Upload APK
