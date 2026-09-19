@@ -1,8 +1,22 @@
-# add this line
-android.accept_sdk_license_agreements = True
+[app]
+title = Samundar AI
+package.name = samundarai
+package.domain = com.gurugskr.samundarai
+source.dir =.
+source.include_exts = py,png,jpg,kv,json
+version = 0.1
+requirements = python3,kivy==2.2.0
+orientation = portrait
 
-# and make sure these match
+[buildozer]
+log_level = 2
+
+[app:android]
 android.api = 33
 android.minapi = 21
-android.build_tools_version = 37.0.0
-# or try 34.0.0 if 37 keeps failing
+android.sdk = 33
+android.ndk = 25b
+android.build_tools_version = 33.0.2
+android.accept_sdk_license_agreement = True
+android.permissions = INTERNET
+p4a.bootstrap = sdl2
