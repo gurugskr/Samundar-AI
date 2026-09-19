@@ -1,9 +1,7 @@
-name: Build
+name: build
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
     branches: [ main ]
 
 jobs:
@@ -18,7 +16,13 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Check where package.json is
+        run: |
+          ls -la
+          find . -name "package.json" -type f
+
       - name: Install and Build
+        working-directory: ./Samundar-AI
         run: |
           npm install
           npm run build
