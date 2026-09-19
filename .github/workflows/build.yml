@@ -1,43 +1,24 @@
-name: Build APK
+name: Build
+
 on:
   push:
     branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          python-version: '3.11'
+          node-version: '20'
 
-      - name: Install dependencies
+      - name: Install and Build
         run: |
-          sudo apt update
-          sudo apt install -y zip unzip openjdk-17-jdk python3-pip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo5 cmake libffi-dev libssl-dev
-          pip install --upgrade pip
-          pip install buildozer Cython==0.29.33
-
-      - name: Clean old Buildozer cache
-        run: rm -rf ~/.buildozer
-
-      - name: Pre-install SDK 33.0.2 and accept licenses
-        run: |
-          mkdir -p ~/.android
-          echo "count=0" > ~/.android/repositories.cfg
-          SDK="$HOME/.buildozer/android/platform/android-sdk"
-          mkdir -p $SDK
-          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$SDK --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --sdk_root=$SDK "build-tools;33.0.2" "platforms;android-33" "platform-tools" || true
-          yes | $SDK/cmdline-tools/latest/bin/sdkmanager --licenses || true
-
-      - name: Build APK
-        run: buildozer android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: Samundar-AI-APK
-          path: bin/*.apk
+          npm install
+          npm run build
