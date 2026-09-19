@@ -10,17 +10,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-python@v5
         with:
-          node-version: '20'
+          python-version: '3.10'
 
       - name: Install and Build
         run: |
           ls -la
-          PKG_PATH=$(find . -name "package.json" | head -n 1)
-          echo "Found package.json at: $PKG_PATH"
-          DIR=$(dirname $PKG_PATH)
-          echo "Installing in dir: $DIR"
-          cd $DIR
-          npm install
-          npm run build || npm run dev --help || echo "no build script"
+          python -m pip install --upgrade pip
+          pip install kivy
+          python -m py_compile main.py
+          echo "Build Success - main.py is OK"
