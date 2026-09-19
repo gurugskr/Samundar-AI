@@ -17,15 +17,19 @@ jobs:
           sudo apt install -y zip unzip openjdk-17-jdk
           pip install --upgrade pip
           pip install buildozer cython
-      - name: Accept Android Licenses
-        run: |
-          mkdir -p ~/.android
-          touch ~/.android/repositories.cfg
-          yes | sdkmanager --licenses || true
-          yes | sdkmanager "build-tools;33.0.2" "platform-tools" || true
       - name: Build APK
         run: |
-          rm -rf .buildozer bin || true
+          rm -rf.buildozer bin || true
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+          # पहली बार SDK download होगा, fail हो सकता है - ठीक है
+          yes | buildozer android debug || true
+          # अब Buildozer के अंदर वाले SDK का license accept करो
+          SDK_PATH=$HOME/.buildozer/android/platform/android-sdk
+          CMDLINE=$SDK_PATH/cmdline-tools/latest/bin
+          yes | $CMDLINE/sdkmanager --licenses || true
+          $CMDLINE/sdkmanager "build-tools;33.0.2" "build-tools;37.0.0" "platform-tools" || true
+          # अब Final build
           buildozer android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
