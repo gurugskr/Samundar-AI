@@ -15,7 +15,8 @@ jobs:
         with:
           distribution: temurin
           java-version: '17'
-      - name: Install Buildozer
+
+      - name: Install Buildozer Master
         run: |
           sudo apt-get update
           sudo apt-get install -y zip unzip libffi-dev libssl-dev libltdl-dev
@@ -23,7 +24,8 @@ jobs:
           pip install cython==0.29.36
           pip install https://github.com/kivy/buildozer/archive/master.zip
           pip install https://github.com/kivy/python-for-android/archive/master.zip
-      - name: Fix SDK and Licenses
+
+      - name: Fix SDK Path and Licenses
         run: |
           mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
           mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin
@@ -31,13 +33,14 @@ jobs:
           ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
           yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
           yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --install "build-tools;33.0.2" "build-tools;37.0.0" "platforms;android-33" || true
           mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
           cp $ANDROID_HOME/licenses/* ~/.buildozer/android/platform/android-sdk/licenses/ || true
+
       - name: Build APK
         run: |
           rm -rf bin
           buildozer -v android debug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
