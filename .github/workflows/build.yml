@@ -31,4 +31,13 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Samundar-AI-APK
-          path: bin/*.apk
+          path: bin/*.apk 
+          - name: Accept Licenses
+        run: |
+          yes | $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          mkdir -p ~/.android
+          touch ~/.android/repositories.cfg
+
+      - name: Build APK
+        run: |
+          buildozer android debug
