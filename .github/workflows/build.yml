@@ -1,32 +1,30 @@
-name: build
-
-on:
-  push:
-    branches: [ main ]
-
+name: Samundar-AI-Build
+on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v5
-
-      - uses: actions/setup-python@v6
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.10'
-
-      - name: Install and Build
+      - name: Install Buildozer Fixed
         run: |
-          ls -la
-          python -m pip install --upgrade pip
-          pip install kivy
-          python -m py_compile main.py
-          mkdir -p dist
-          cp main.py dist/
-          echo "Build Success - main.py is OK"
-          ls -la dist/
-
-      - name: Upload Samundar
+          sudo apt update
+          sudo apt install -y openjdk-17-jdk zip unzip libffi-dev libssl-dev libncurses5 libtinfo5
+          pip install --upgrade pip
+          pip install Cython==3.0.11
+          pip install --no-deps buildozer==1.5.0
+          pip install pythonforandroid kivy==2.2.0
+          pip install legacy-cgi
+          SITE=$(python -c "import site; print(site.getsitepackages()[0])")
+          echo "import sys; import legacy_cgi as cgi; sys.modules['cgi']=cgi" > $SITE/sitecustomize.py
+      - name: Build APK
+        run: |
+          rm -rf.buildozer bin
+          yes | buildozer -v android debug
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: Samundar-Build
-          path: dist/
+          name: Samundar-APK
+          path: bin/*.apk
