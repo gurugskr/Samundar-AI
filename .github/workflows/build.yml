@@ -1,5 +1,4 @@
 name: build
-
 on:
   push:
     branches: [ main ]
@@ -7,7 +6,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -25,20 +23,26 @@ jobs:
       - name: Install Buildozer deps
         run: |
           sudo apt update
-          sudo apt install -y python3-pip zip unzip openjdk-17-jdk libffi-dev libssl-dev
+          sudo apt install -y python3-pip zip unzip openjdk-17-jdk libffi-dev libssl-dev autoconf automake libtool
           pip install --upgrade pip
           pip install buildozer cython
 
       - name: Fix buildozer.spec conflict
         run: |
-          # version.regex wali line ko hata dega, sirf version rahega
-          sed -i '/^version.regex/d' buildozer.spec
-          echo "Fixed spec file:"
-          grep "^version" buildozer.spec
+          sed -i '/^version.regex/d' buildozer.spec || true
+          cat buildozer.spec | grep "^version"
+
+      - name: Accept Android Licenses
+        run: |
+          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
+          # license accept karne ke liye ye sabse zaroori step hai
+          yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
+          # agar upar wala path nahi hai to buildozer khud bana lega, isliye ye bhi
+          buildozer --version
 
       - name: Build APK
         run: |
-          buildozer -v android debug
+          yes | buildozer -v android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
