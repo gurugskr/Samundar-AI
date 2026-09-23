@@ -1,19 +1,23 @@
 [app]
 title = MyApp
 package.name = myapp
-package.domain = com.myapp.test
-
+package.domain = org.test.myapp
 source.dir =.
 source.include_exts = py,png,jpg,kv,atlas,json
-
-# VERSION FIX - sirf ek hi hai, ab error nahi aayega
 version = 1.0
-
 requirements = python3,kivy
-
 orientation = portrait
-
 fullscreen = 0
+android.accept_sdk_license_agreements = True
 
-# ye sabse zaroori hai tumhare error ke liye
-android.accept_sdk_license
+[buildozer]
+log_level = 2
+
+[app:android]
+android.api = 33
+android.minapi = 21
+android.ndk = 25b
+android.sdk = 33
+android.build_tools_version = 33.0.2
+p4a.branch = master
+android.permissions = INTERNET
