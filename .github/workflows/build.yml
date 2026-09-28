@@ -10,27 +10,34 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v6
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Android SDK - License Fix
+        uses: android-actions/setup-android@v3
+
+      - name: Install Build-Tools 37 and Accept License
+        run: |
+          sdkmanager --install "build-tools;37.0.0" "build-tools;33.0.2" "platforms;android-33" "platform-tools"
+          yes | sdkmanager --licenses
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
         with:
           python-version: '3.10'
 
-      - name: Install Dependencies
+      - name: Install Python Dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip zip unzip openjdk-17-jdk aidl
+          sudo apt install -y zip unzip aidl
           pip install --upgrade pip
-          pip install buildozer kivy cython
+          pip install buildozer==1.5.0 kivy cython
 
       - name: Build APK
         run: |
-          # Pehle ek baar SDK download karwate hain
-          buildozer android debug || true
-          # License accept karte hain
-          SDKMANAGER=$(find ~/.buildozer -name sdkmanager | head -n 1)
-          echo "Found SDK Manager at: $SDKMANAGER"
-          yes | $SDKMANAGER --licenses || true
-          $SDKMANAGER "build-tools;33.0.2" "build-tools;37.0.0" "platform-tools" || true
-          # Ab final build
           buildozer android debug
 
       - name: Upload Samundar APK
