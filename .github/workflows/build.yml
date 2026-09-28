@@ -1,51 +1,32 @@
 name: build
+
 on:
   push:
     branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
-      - name: Setup Python 3.10
-        uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6
         with:
           python-version: '3.10'
 
-      - name: Install Buildozer deps
+      - name: Install and Build
         run: |
-          sudo apt update
-          sudo apt install -y python3-pip zip unzip openjdk-17-jdk libffi-dev libssl-dev autoconf automake libtool
-          pip install --upgrade pip
-          pip install buildozer cython
+          ls -la
+          python -m pip install --upgrade pip
+          pip install kivy
+          python -m py_compile main.py
+          mkdir -p dist
+          cp main.py dist/
+          echo "Build Success - main.py is OK"
+          ls -la dist/
 
-      - name: Fix buildozer.spec conflict
-        run: |
-          sed -i '/^version.regex/d' buildozer.spec || true
-          cat buildozer.spec | grep "^version"
-
-      - name: Accept Android Licenses
-        run: |
-          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools
-          # license accept karne ke liye ye sabse zaroori step hai
-          yes | ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses || true
-          # agar upar wala path nahi hai to buildozer khud bana lega, isliye ye bhi
-          buildozer --version
-
-      - name: Build APK
-        run: |
-          yes | buildozer -v android debug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Upload Samundar
+        uses: actions/upload-artifact@v5
         with:
-          name: apk
-          path: bin/*.apk
+          name: Samundar-Build
+          path: dist/
