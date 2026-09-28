@@ -1,7 +1,7 @@
 [app]
-title = MyApp
-package.name = myapp
-package.domain = org.test.myapp
+title = Samundar-AI
+package.name = samundarai
+package.domain = com.gurugskr.samundarai
 source.dir =.
 source.include_exts = py,png,jpg,kv,atlas,json
 version = 1.0
