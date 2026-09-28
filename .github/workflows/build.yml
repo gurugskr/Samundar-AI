@@ -17,12 +17,20 @@ jobs:
       - name: Install Dependencies
         run: |
           sudo apt update
-          sudo apt install -y python3-pip zip unzip openjdk-17-jdk
+          sudo apt install -y python3-pip zip unzip openjdk-17-jdk aidl
           pip install --upgrade pip
           pip install buildozer kivy cython
 
-      - name: Build APK with your spec file
+      - name: Build APK
         run: |
+          # Pehle ek baar SDK download karwate hain
+          buildozer android debug || true
+          # License accept karte hain
+          SDKMANAGER=$(find ~/.buildozer -name sdkmanager | head -n 1)
+          echo "Found SDK Manager at: $SDKMANAGER"
+          yes | $SDKMANAGER --licenses || true
+          $SDKMANAGER "build-tools;33.0.2" "build-tools;37.0.0" "platform-tools" || true
+          # Ab final build
           buildozer android debug
 
       - name: Upload Samundar APK
