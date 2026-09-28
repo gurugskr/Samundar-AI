@@ -1,8 +1,8 @@
-name: Build APK
-
+name: build
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -10,31 +10,34 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - name: Setup Java 17
+        uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
           java-version: '17'
 
-      - uses: subosito/flutter-action@v2
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.22.2'
           channel: 'stable'
 
-      - name: Check project structure
-        run: ls -la
+      - name: Find pubspec.yaml
+        run: |
+          pwd
+          ls -la
+          find . -name "pubspec.yaml"
 
       - name: Get packages
         run: flutter pub get
-        # Agar tumhara project kisi folder me hai jaise 'samundar_ai_app' to neeche wali line uncomment kar do
-        # working-directory: ./samundar_ai_app
+        working-directory: ./Sar  # <-- Yaha apne folder ka naam likho
 
       - name: Build APK
         run: flutter build apk --release
-        # working-directory: ./samundar_ai_app
+        working-directory: ./Sar  # <-- Yaha bhi same folder naam
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
-          # Agar folder ke andar hai to path: samundar_ai_app/build/app/outputs/flutter-apk/app-release.apk
+          name: Samundar-AI-APK
+          path: Sar/build/app/outputs/flutter-apk/app-release.apk
