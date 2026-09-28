@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v5
 
@@ -14,19 +14,19 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install and Build
+      - name: Install Dependencies
         run: |
-          ls -la
-          python -m pip install --upgrade pip
-          pip install kivy
-          python -m py_compile main.py
-          mkdir -p dist
-          cp main.py dist/
-          echo "Build Success - main.py is OK"
-          ls -la dist/
+          sudo apt update
+          sudo apt install -y python3-pip zip unzip openjdk-17-jdk
+          pip install --upgrade pip
+          pip install buildozer kivy cython
 
-      - name: Upload Samundar
+      - name: Build APK with your spec file
+        run: |
+          buildozer android debug
+
+      - name: Upload Samundar APK
         uses: actions/upload-artifact@v5
         with:
-          name: Samundar-Build
-          path: dist/
+          name: Samundar-APK
+          path: bin/*.apk
