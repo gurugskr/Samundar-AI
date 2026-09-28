@@ -20,14 +20,21 @@ jobs:
           flutter-version: '3.22.2'
           channel: 'stable'
 
+      - name: Check project structure
+        run: ls -la
+
       - name: Get packages
         run: flutter pub get
+        # Agar tumhara project kisi folder me hai jaise 'samundar_ai_app' to neeche wali line uncomment kar do
+        # working-directory: ./samundar_ai_app
 
       - name: Build APK
         run: flutter build apk --release
+        # working-directory: ./samundar_ai_app
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: app-release-apk
           path: build/app/outputs/flutter-apk/app-release.apk
+          # Agar folder ke andar hai to path: samundar_ai_app/build/app/outputs/flutter-apk/app-release.apk
