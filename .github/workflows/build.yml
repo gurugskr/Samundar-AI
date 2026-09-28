@@ -24,6 +24,18 @@ jobs:
           pip install --upgrade pip
           pip install buildozer Cython==0.29.36
 
+      - name: Fix License and Aidl Hack
+        run: |
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo "24333f8a63b6825ea9c5514f83c1059f7416b044" >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo "y" | buildozer android debug || true
+          ls ~/.buildozer/android/platform/android-sdk/build-tools/ || true
+          if [ -d ~/.buildozer/android/platform/android-sdk/build-tools/33.0.2 ]; then
+            cp -r ~/.buildozer/android/platform/android-sdk/build-tools/33.0.2 ~/.buildozer/android/platform/android-sdk/build-tools/37.0.0 || true
+          fi
+
       - name: Build APK
         run: |
           buildozer android debug
