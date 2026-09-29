@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: '3.10'
 
-      - name: Install Buildozer + P4A Develop
+      - name: Install Tools
         run: |
           sudo apt update -y
           sudo apt install -y zip unzip wget
@@ -25,34 +25,41 @@ jobs:
           pip install Cython==0.29.36 legacy-cgi
           pip install https://github.com/kivy/python-for-android/archive/develop.zip
           pip install https://github.com/kivy/buildozer/archive/master.zip
-          PYTHON_PATH=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
-          echo "try:
-            import cgi
-          except ImportError:
-            import legacy_cgi as cgi
-            import sys
-            sys.modules['cgi']=cgi" > $PYTHON_PATH/sitecustomize.py
 
-      - name: Pre-Install SDK Hack
+      - name: Build APK
         run: |
           export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
           mkdir -p $ANDROID_HOME/cmdline-tools
-          cd /tmp
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O ct.zip
-          unzip -q ct.zip
-          mkdir -p $ANDROID_HOME/cmdline-tools/latest
-          mv cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/ || true
+          if [! -d "$ANDROID_HOME/cmdline-tools/latest" ]; then
+            cd /tmp
+            wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip -O ct.zip
+            unzip -q ct.zip
+            mkdir -p $ANDROID_HOME/cmdline-tools/latest
+            mv cmdline-tools/* $ANDROID_HOME/cmdline-tools/latest/ || true
+          fi
+          mkdir -p $ANDROID_HOME/tools/bin
+          ln -sf $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
           mkdir -p $ANDROID_HOME/licenses
           echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > $ANDROID_HOME/licenses/android-sdk-license
           echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> $ANDROID_HOME/licenses/android-sdk-license
           echo "24333f8a63b6825ea9c5514f83c1059f7416b044" >> $ANDROID_HOME/licenses/android-sdk-license
-          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$PATH
           yes | sdkmanager --licenses || true
           sdkmanager "build-tools;33.0.2" "platform-tools" "platforms;android-33" || true
-          cp -r $ANDROID_HOME/build-tools/33.0.2 $ANDROID_HOME/build-tools/37.0.0 || true
+          mkdir -p $ANDROID_HOME/build-tools
+          if [ -d "$ANDROID_HOME/build-tools/33.0.2" ] && [! -d "$ANDROID_HOME/build-tools/37.0.0" ]; then
+            cp -r $ANDROID_HOME/build-tools/33.0.2 $ANDROID_HOME/build-tools/37.0.0
+          fi
+          # cgi fix
+          PYTHON_LIB=$(python -c "import sysconfig; print(sysconfig.get_paths()['purelib'])")
+          echo "try:
+            import cgi
+          except:
+            import legacy_cgi as cgi
+            import sys
+            sys.modules['cgi']=cgi" > $PYTHON_LIB/sitecustomize.py
 
-      - name: Build APK
-        run: |
           buildozer android debug
 
       - name: Upload APK
