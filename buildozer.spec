@@ -5,7 +5,7 @@ package.domain = com.samundar.ai
 source.dir =.
 source.include_exts = py,png,jpg,kv,atlas
 version = 1.0
-requirements = python3,kivy
+requirements = python3,kivy==2.2.0,Pillow
 orientation = portrait
 fullscreen = 0
 
@@ -19,5 +19,6 @@ android.ndk = 28c
 android.sdk = 33
 android.buildtools_version = 33.0.2
 android.accept_sdk_license_agreement = True
-android.ant_path = /usr/bin/ant
 p4a.bootstrap = sdl2
+p4a.branch = master
+android.archs = arm64-v8a, armeabi-v7a
