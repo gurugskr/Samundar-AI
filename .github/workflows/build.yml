@@ -20,15 +20,15 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          java -version
-          sudo apt update
-          sudo apt install -y zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev libltdl-dev
-          rm -rf /home/runner/.buildozer
+          sudo apt update -y
+          sudo apt install -y zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev libtinfo6 cmake libffi-dev libssl-dev libltdl-dev lld
 
-      - name: Install Buildozer
+      - name: Install Buildozer & p4a develop
         run: |
           pip install --upgrade pip
-          pip install Cython==0.29.36 buildozer
+          pip install Cython==0.29.36
+          pip install https://github.com/kivy/python-for-android/archive/develop.zip
+          pip install https://github.com/kivy/buildozer/archive/master.zip
 
       - name: Build APK
         run: |
