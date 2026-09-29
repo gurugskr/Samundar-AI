@@ -10,18 +10,26 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt update -y
-          sudo apt install -y python3-pip openjdk-17-jdk zip unzip libffi-dev libssl-dev libltdl-dev libsqlite3-dev
+          sudo apt install -y python3-pip openjdk-17-jdk zip unzip libffi-dev libssl-dev
           pip install --upgrade pip
           pip install Cython==0.29.36
           pip install https://github.com/kivy/python-for-android/archive/develop.zip
           pip install https://github.com/kivy/buildozer/archive/master.zip
 
-      - name: Build APK
+      - name: Fix sdkmanager Permission Denied
         run: |
-          # ye 2 line bahut zaruri hai warna sdkmanager error ayega
-          mkdir -p $HOME/.buildozer/android/platform/android-sdk/tools/bin
-          touch $HOME/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
-          buildozer android debug
+          mkdir -p ~/.buildozer/android/platform/android-sdk/tools/bin
+          cd /tmp
+          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          unzip -q commandlinetools-linux-11076708_latest.zip
+          mkdir -p ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest
+          mv cmdline-tools/* ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/ || true
+          ln -sf ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+          chmod +x ~/.buildozer/android/platform/android-sdk/cmdline-tools/latest/bin/sdkmanager
+          chmod +x ~/.buildozer/android/platform/android-sdk/tools/bin/sdkmanager
+
+      - name: Build APK
+        run: buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
